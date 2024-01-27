@@ -3,7 +3,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 200px;
+    gap: 150px;
     padding: 40px;
     width: 100%;
     height:600px;
@@ -18,7 +18,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    width: 50%;
     height:600px;
 }
 
@@ -32,4 +32,43 @@ canvas {
     border-radius: 10px;
     padding: 10px 20px;
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.tabelaGeral{
+    padding-top: 20px;
+    pointer-events: none;
+}
+
+.grafico_bloco1, .grafico_bloco2, .grafico_bloco3 {
+    display: flex;
+    place-items: center;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    gap: 20px;
+}
+
+.table_dados_time{
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.table_dados_time > table{
+    display: flex;
+    gap: 20px;
+}
+
+.table_dados_time td{
+    width: 140px;
+    padding: 4px;
+    text-transform: uppercase;
+}
+
+.style_table_geral{
+    background-color: var(--corCabecalho);
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
 }

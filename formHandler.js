@@ -18,6 +18,7 @@ export async function submitForm(event, db, numeroDePartidas) {
     var partidaData = [];
     var resultadoUbaki = document.getElementById("resultado_ubaki1").value;
     var resultadoVisitante = document.getElementById("resultado_visitante1").value;
+    let vitoria = resultadoUbaki > resultadoVisitante ? true : false;
 
     players.forEach(function (player) {
         var pontos = document.getElementById(`pontos_${player}`).value;
@@ -45,7 +46,6 @@ export async function submitForm(event, db, numeroDePartidas) {
     if (!querySnapshot.empty) {
         numeroDePartidas = querySnapshot.size;
     }
-    
 
     const novaPartidaRef = collection(db, "partidas");
 
@@ -64,6 +64,7 @@ export async function submitForm(event, db, numeroDePartidas) {
                 ubaki: resultadoUbaki,
                 visitante: resultadoVisitante
             },
+            vitoria: vitoria,
         })
         .then((docRef) => {
             console.log("Dados da partida salvos com ID: ", docRef.id);

@@ -7,7 +7,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
 
         // Configuração do Firebase
         const firebaseConfig = {
@@ -23,7 +23,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function buscarDadosFirestore() {
+    async function buscarDadosFirestore() {
     const partidaRef = collection(db, "partidas");
     const querySnapshot = await getDocs(partidaRef);
 
@@ -41,20 +41,11 @@
 
         data.jogadores.forEach((jogador) => {
             const nomeJogador = jogador.jogador;
-
-            // Acumula os pontos para cada jogador
             dadosPorJogador.pontos[nomeJogador] = (dadosPorJogador.pontos[nomeJogador] || 0) + parseInt(jogador.pontos || 0);
-
-            // Acumula os gols para cada jogador
             dadosPorJogador.gols[nomeJogador] = (dadosPorJogador.gols[nomeJogador] || 0) + parseInt(jogador.gols || 0);
-
-            // Conta a quantidade de vezes que o jogador foi MVP
             dadosPorJogador.mvp[nomeJogador] = (dadosPorJogador.mvp[nomeJogador] || 0) + (jogador.mvp ? 1 : 0);
-
             dadosPorJogador.passes[nomeJogador] = (dadosPorJogador.passes[nomeJogador] || 0) + parseInt(jogador.passes || 0);
-            
             dadosPorJogador.defesas[nomeJogador] = (dadosPorJogador.defesas[nomeJogador] || 0) + parseInt(jogador.defesas || 0);
-
             dadosPorJogador.chutes[nomeJogador] = (dadosPorJogador.chutes[nomeJogador] || 0) + parseInt(jogador.chutes || 0);
         });
     });
@@ -122,11 +113,147 @@ async function criarGrafico(dados, type, chartContainerId, label, backgroundColo
     });
 }
 
+async function preencherTabela(
+    dados, 
+    totalGolsFeitos, 
+    totalVitorias,
+    totalDerrota,
+    totalJogos,
+    totalPasses,
+    totalPontos,
+    totalDefesa,
+    totalChute,
+    totalGolsSofridos
+    ){
+    const tabela = document.getElementById("tabelaDados");
+
+    // Itera sobre os jogadores e atualiza os valores nas células existentes
+    Object.keys(dados.pontos).forEach((jogador) => {
+        const linha = tabela.querySelector(`.table_row_${jogador.toLowerCase()}`);
+        const tabelaGols = document.getElementById("tabelaGols");
+        const tabelaDesempenho = document.getElementById("tabelaDesempenho");
+        const tabelaDadosJogo = document.getElementById("tabelaDadosJogo");
+
+
+        if (linha) {
+            // Atualiza os valores nas células
+            linha.querySelector(`#pontos_${jogador.toLowerCase()}`).value = dados.pontos[jogador] || 0;
+            linha.querySelector(`#gols_${jogador.toLowerCase()}`).value = dados.gols[jogador] || 0;
+            linha.querySelector(`#passes_${jogador.toLowerCase()}`).value = dados.passes[jogador] || 0;
+            linha.querySelector(`#defesas_${jogador.toLowerCase()}`).value = dados.defesas[jogador] || 0;
+            linha.querySelector(`#chutes_${jogador.toLowerCase()}`).value = dados.chutes[jogador] || 0;
+            linha.querySelector(`#mvp_${jogador.toLowerCase()}`).value = dados.mvp[jogador] || 0;
+        }
+    });
+
+    const golsFeitos = tabelaGols.querySelector(".gols_feitos");
+    const golsSofridos = tabelaGols.querySelector(".gols_sofridos");
+    const saldo = tabelaGols.querySelector(".saldo_time");
+    const vitoriasTime = tabelaDesempenho.querySelector(".vitorias_time")
+    const derrotasTime = tabelaDesempenho.querySelector(".derrotas_time")
+    const jogosTime = tabelaDesempenho.querySelector(".jogos_time")
+    const golsPorJogo = tabelaDadosJogo.querySelector(".gol_por_jogo")
+    const pontosPorJogo = tabelaDadosJogo.querySelector(".ponto_por_jogo")
+    const passePorJogo = tabelaDadosJogo.querySelector(".passe_por_jogo")
+    const defesaPorJogo = tabelaDadosJogo.querySelector(".defesa_por_jogo")
+    const chutePorJogo = tabelaDadosJogo.querySelector(".chute_por_jogo")
+
+    function atualizarConteudoElemento(elemento, valor) {
+        if (elemento) {
+            elemento.textContent = valor || 0;
+        }
+    }
+
+    atualizarConteudoElemento(golsFeitos, totalGolsFeitos);
+    atualizarConteudoElemento(golsSofridos, totalGolsSofridos);
+    atualizarConteudoElemento(saldo, totalGolsFeitos-totalGolsSofridos);
+    atualizarConteudoElemento(vitoriasTime, totalVitorias);
+    atualizarConteudoElemento(derrotasTime, totalDerrota);
+    atualizarConteudoElemento(jogosTime, totalJogos);
+    atualizarConteudoElemento(golsPorJogo, totalGolsFeitos / totalJogos);
+    atualizarConteudoElemento(passePorJogo, totalPasses / totalJogos);
+    atualizarConteudoElemento(pontosPorJogo, totalPontos / totalJogos);
+    atualizarConteudoElemento(defesaPorJogo, totalDefesa / totalJogos);
+    atualizarConteudoElemento(chutePorJogo, totalChute / totalJogos);
+
+}
+
+async function calcularGolsSofridos(db){
+    const partidaRef = collection(db, "partidas");
+    const querySnapshot = await getDocs(partidaRef);
+    let totalGolsSofridos = 0;
+
+    querySnapshot.forEach((doc) =>{
+        const data = doc.data();
+        if(data.resultado && data.resultado.visitante){
+            totalGolsSofridos += parseInt(data.resultado.visitante) || 0
+        };
+    });
+
+    return totalGolsSofridos;
+
+}
+
+function calcularDesempenhoTime(dados, desempenho){
+    let total = 0;
+
+    Object.values(dados[desempenho]).forEach((valor) => {
+        total += parseInt(valor) || 0;
+    });
+
+    return total;
+}
+
+async function contarEstatisticas(db, filtro) {
+    const partidaRef = collection(db, "partidas");
+    let queryFilter;
+
+    // Configurar o filtro com base no parâmetro fornecido
+    if (filtro === "vitoria") {
+        queryFilter = where("vitoria", "==", true);
+    } else if (filtro === "derrota") {
+        queryFilter = where("vitoria", "==", false);
+    } else {
+        // Se nenhum filtro for especificado, obtenha todos os documentos
+        queryFilter = {};
+    }
+
+    const querySnapshot = await getDocs(query(partidaRef, queryFilter));
+    const quantidade = querySnapshot.size;
+
+    return quantidade;
+}
+
 
 
 // Chama a função para buscar os dados
-buscarDadosFirestore().then((dados) => {
+buscarDadosFirestore().then(async (dados) => {
     let bgColor = ['rgba(109, 158, 235)', 'rgba(251, 188, 4)', 'rgba(52, 168, 83)']
+    const totalGolsFeitos = calcularDesempenhoTime(dados, 'gols');
+    const totalPasses = calcularDesempenhoTime(dados, 'passes');
+    const totalPontos = calcularDesempenhoTime(dados, 'pontos');
+    const totalDefesa = calcularDesempenhoTime(dados, 'defesas');
+    const totalChute = calcularDesempenhoTime(dados, 'chutes');
+    
+    
+    const totalGolsSofridos = await calcularGolsSofridos(db);
+    const totalVitorias = await contarEstatisticas(db, "vitoria");
+    const totalDerrota = await contarEstatisticas(db, "derrota");
+    const totalJogos = await contarEstatisticas(db);
+
+    preencherTabela(
+    dados,
+    totalGolsFeitos,
+    totalVitorias,
+    totalDerrota,
+    totalJogos,
+    totalPasses,
+    totalPontos,
+    totalDefesa,
+    totalChute,
+    totalGolsSofridos
+    );
+
     // Chama a função para criar o gráfico de pontos
     criarGrafico(dados.pontos, 'bar', 'chartContainer', 'Pontos por Jogador', bgColor, 'rgba(0, 0, 0)', undefined, undefined, 'y');
 
@@ -140,6 +267,7 @@ buscarDadosFirestore().then((dados) => {
     criarGrafico(dados.chutes, 'bar', 'chartContainer5', 'Chutes', bgColor,'rgba(0, 0, 0)');
 
     criarGrafico(dados.mvp, 'pie', 'chartContainer6', 'MVP', bgColor, 'rgba(0, 0, 0)', 30, true);
+
 }).catch((error) => {
     console.error("Erro ao buscar dados do Firestore:", error);
 });
@@ -155,31 +283,223 @@ buscarDadosFirestore().then((dados) => {
                 <a href="partidas3x3.html" class="buttons">Partidas</a>
             </div>
         </header>
-        <div class="graficos block">
-            <div class="pontosJogador">
-                <h1>Pontos</h1>
-                <canvas id="chartContainer"></canvas>
-            </div>
-            <div class="golsJogador">
-                <h1>Gols</h1>
-                <canvas id="chartContainer2"></canvas>
-            </div>
-            <div class="passeJogador">
-                <h1>Passes</h1>
-                <canvas id="chartContainer3"></canvas>
-            </div>
-            <div class="defesaJogador">
-                <h1>Defesas</h1>
-                <canvas id="chartContainer4"></canvas>
-            </div>
-            <div class="chuteJogador">
-                <h1>Chutes</h1>
-                <canvas id="chartContainer5"></canvas>
-            </div>
-            <div class="mvpJogador">
-                <h1>MVP</h1>
-                <canvas id="chartContainer6"></canvas>
+        <div class="tabelaGeral block">
+            <table id="tabelaDados">
+                <tr>
+                    <th class="table_cabecalho">Players</th>
+                    <th class="table_cabecalho">Pontos</th>
+                    <th class="table_cabecalho">Gols</th>
+                    <th class="table_cabecalho">Passes</th>
+                    <th class="table_cabecalho">Defesas</th>
+                    <th class="table_cabecalho">Chutes</th>
+                    <th class="table_cabecalho">MVP</th>
+                </tr>
+                <tr class="table_row_danilo">
+                    <td class="table_name_player">Danilo</td>
+                    <td>
+                        <input id="pontos_danilo"
+                            class="table_column_points_danilo_geral" type="number"
+                            oninput="limitarCaracteres(this, 4)" required>
+                    </td>
+                    <td>
+                        <input id="gols_danilo" class="table_column_gols_danilo"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="passes_danilo"
+                            class="table_column_passes_danilo_geral" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="defesas_danilo"
+                            class="table_column_defesas_danilo_geral" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="chutes_danilo"
+                            class="table_column_chutes_danilo" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="mvp_danilo" class="table_column_mvp_danilo_geral"
+                            type="number">
+                    </td>
+                </tr>
+                <tr class="table_row_junin">
+                    <td class="table_name_player">Junin</td>
+                    <td>
+                        <input id="pontos_junin"
+                            class="table_column_points_junin_geral" type="number"
+                            oninput="limitarCaracteres(this, 4)" required>
+                    </td>
+                    <td>
+                        <input id="gols_junin" class="table_column_gols_junin_geral"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="passes_junin"
+                            class="table_column_passes_junin_geral" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="defesas_junin"
+                            class="table_column_defesas_junin_geral" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="chutes_junin"
+                            class="table_column_chutes_junin_geral" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="mvp_junin" class="table_column_mvp_junin_geral"
+                            type="number">
+                    </td>
+                </tr>
+                <tr class="table_row_nilo">
+                    <td class="table_name_player">Nilo</td>
+                    <td>
+                        <input id="pontos_nilo" class="table_column_points_nilo_geral"
+                            type="number"
+                            oninput="limitarCaracteres(this, 4)" required>
+                    </td>
+                    <td>
+                        <input id="gols_nilo" class="table_column_gols_nilo_geral"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="passes_nilo" class="table_column_passes_nilo_geral"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="defesas_nilo"
+                            class="table_column_defesas_nilo_geral" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="chutes_nilo" class="table_column_chutes_nilo_geral"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="mvp_nilo" class="table_column_mvp_nilo_geral"
+                            type="number">
+                    </td>
+                </tr>
+            </table>
+            <div class="table_dados_time">
+                <table id="tabelaGols">
+                    <tr class="table_gols_feitos">
+                        <td class="style_table_geral">Gols Feitos</td>
+                        <td>
+                            <p class="gols_feitos" id="gols_feitos"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_gols_sofridos">
+                        <td class="style_table_geral">Gols Sofridos</td>
+                        <td >
+                            <p class="gols_sofridos"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_saldo">
+                        <td class="style_table_geral">Saldo</td>
+                        <td >
+                            <p class="saldo_time"></p>
+                        </td>
+                    </tr>
+                </table>
+                <table id="tabelaDesempenho">
+                    <tr class="table_jogos">
+                        <td class="style_table_geral">Jogos</td>
+                        <td>
+                            <p class="jogos_time"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_vitorias">
+                        <td class="style_table_geral">Vitorias</td>
+                        <td>
+                            <p class="vitorias_time"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_derrotas">
+                        <td class="style_table_geral">Derrotas</td>
+                        <td >
+                            <p class="derrotas_time"></p>
+                        </td>
+                    </tr>
+                </table>
+                <table id="tabelaDadosJogo">
+                    <tr class="table_ponto_por_jogo">
+                        <td class="style_table_geral">Pontos / Jogo</td>
+                        <td>
+                            <p class="ponto_por_jogo"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_gol_por_jogo">
+                        <td class="style_table_geral">Gols / Jogo</td>
+                        <td>
+                            <p class="gol_por_jogo"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_passe_por_jogo">
+                        <td class="style_table_geral">Passes / Jogo</td>
+                        <td>
+                            <p class="passe_por_jogo"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_defesa_por_jogo">
+                        <td class="style_table_geral">Defesas / Jogo</td>
+                        <td>
+                            <p class="defesa_por_jogo"></p>
+                        </td>
+                    </tr>
+                    <tr class="table_chute_por_jogo">
+                        <td class="style_table_geral">Chutes / Jogo</td>
+                        <td>
+                            <p class="chute_por_jogo"></p>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
+        <div class="graficos block">
+            <div class="grafico_bloco1">
+                <div class="pontosJogador">
+                    <h1>Pontos</h1>
+                    <canvas id="chartContainer"></canvas>
+                </div>
+                <div class="golsJogador">
+                    <h1>Gols</h1>
+                    <canvas id="chartContainer2"></canvas>
+                </div>
+            </div>
+            <div class="grafico_bloco2">
+                <div class="passeJogador">
+                    <h1>Passes</h1>
+                    <canvas id="chartContainer3"></canvas>
+                </div>
+                <div class="defesaJogador">
+                    <h1>Defesas</h1>
+                    <canvas id="chartContainer4"></canvas>
+                </div>
+
+            </div>
+            <div class="grafico_bloco3">
+                <div class="chuteJogador">
+                    <h1>Chutes</h1>
+                    <canvas id="chartContainer5"></canvas>
+                </div>
+                <div class="mvpJogador">
+                    <h1>MVP</h1>
+                    <canvas id="chartContainer6"></canvas>
+                </div>
+
+            </div>
+        </div>
+        <script src="chart.js"></script>
     </body>
 </html>
