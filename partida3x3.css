@@ -1,0 +1,64 @@
+.partidas3x3-body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: auto;
+}
+
+.partidas3x3-body-title {
+    padding: 20px 0 0px 0;
+}
+
+.table_name_player {
+    text-transform: capitalize;
+}
+
+input:disabled {
+    color: black !important;
+    background-color: var(--corTabela);
+}
+
+#dadosContainer {
+    display: flex;
+    width: 100%;
+    text-align: center;
+    flex-direction: column;
+}
+
+.data_partida {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.data_partida span {
+    font-size: 18px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background-color: var(--corTabela);
+    color: var(--corCabecalho);
+    font-weight: bold;
+    cursor: default;
+}
+
+.checkDisabled {
+    pointer-events: none;
+    /* Evita interação do usuário, mantendo o estilo */
+    appearance: none;
+    -webkit-appearance: none;
+    height: 40px;
+    width: 100%;
+    background-color: var(--corTabela);
+    display: block;
+    margin: 0 auto;
+}
+
+.checkDisabled:checked {
+    background-color: var(--checkbox);
+}
+
+.infosTable {
+    display: flex;
+    gap: 10px;
+}
+

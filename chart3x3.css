@@ -1,0 +1,35 @@
+
+.graficos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 200px;
+    padding: 40px;
+    width: 100%;
+    height:600px;
+}
+
+.pontosJogador, 
+.golsJogador,
+.mvpJogador,
+.passeJogador,
+.chuteJogador,
+.defesaJogador {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height:600px;
+}
+
+.graficos h1{
+    margin-bottom: 20px;
+    font-size: 50px;
+}
+
+canvas {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}

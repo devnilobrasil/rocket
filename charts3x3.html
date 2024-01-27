@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="page3x3.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCR5BpDafpwNZm1L8nHlccbM6_RYwb0vtk",
+            authDomain: "rocket-1d23d.firebaseapp.com",
+            projectId: "rocket-1d23d",
+            storageBucket: "rocket-1d23d.appspot.com",
+            messagingSenderId: "382318699090",
+            appId: "1:382318699090:web:ac0961254fee3d04f1358b"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function buscarDadosFirestore() {
+    const partidaRef = collection(db, "partidas");
+    const querySnapshot = await getDocs(partidaRef);
+
+    const dadosPorJogador = {
+        pontos: {},
+        gols: {},
+        mvp: {},
+        passes: {},
+        defesas: {},
+        chutes: {},
+    };
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+
+        data.jogadores.forEach((jogador) => {
+            const nomeJogador = jogador.jogador;
+
+            // Acumula os pontos para cada jogador
+            dadosPorJogador.pontos[nomeJogador] = (dadosPorJogador.pontos[nomeJogador] || 0) + parseInt(jogador.pontos || 0);
+
+            // Acumula os gols para cada jogador
+            dadosPorJogador.gols[nomeJogador] = (dadosPorJogador.gols[nomeJogador] || 0) + parseInt(jogador.gols || 0);
+
+            // Conta a quantidade de vezes que o jogador foi MVP
+            dadosPorJogador.mvp[nomeJogador] = (dadosPorJogador.mvp[nomeJogador] || 0) + (jogador.mvp ? 1 : 0);
+
+            dadosPorJogador.passes[nomeJogador] = (dadosPorJogador.passes[nomeJogador] || 0) + parseInt(jogador.passes || 0);
+            
+            dadosPorJogador.defesas[nomeJogador] = (dadosPorJogador.defesas[nomeJogador] || 0) + parseInt(jogador.defesas || 0);
+
+            dadosPorJogador.chutes[nomeJogador] = (dadosPorJogador.chutes[nomeJogador] || 0) + parseInt(jogador.chutes || 0);
+        });
+    });
+
+    return dadosPorJogador;
+}
+
+function capitalizeFirstLetter(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+async function criarGrafico(dados, type, chartContainerId, label, backgroundColor, borderColor, offset = 0, legend = false, axis = 'x') {
+    const ctx = document.getElementById(chartContainerId).getContext('2d');
+    // Capitalizando a primeira letra de cada palavra nos labels
+    const labelsCapitalized = Object.keys(dados).map(label => capitalizeFirstLetter(label));
+
+
+    const chart = new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labelsCapitalized,
+            datasets: [{
+                label: label,
+                data: Object.values(dados),
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: 1,
+            }],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                },
+                
+            },
+            plugins: {
+                legend: {
+                    display: legend,
+                    labels: {
+                        color: '#000',
+                        boxHeight: 20,
+                        padding: 30
+                    },
+                    position: 'bottom',
+                },
+                tooltip:{
+                    enabled: true,
+
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            offset: offset,
+            indexAxis: axis,
+            layout: {
+                padding: {
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                    bottom: 5
+                }
+            }
+        },
+    });
+}
+
+
+
+// Chama a função para buscar os dados
+buscarDadosFirestore().then((dados) => {
+    let bgColor = ['rgba(109, 158, 235)', 'rgba(251, 188, 4)', 'rgba(52, 168, 83)']
+    // Chama a função para criar o gráfico de pontos
+    criarGrafico(dados.pontos, 'bar', 'chartContainer', 'Pontos por Jogador', bgColor, 'rgba(0, 0, 0)', undefined, undefined, 'y');
+
+    // Chama a função para criar o gráfico de gols
+    criarGrafico(dados.gols, 'bar', 'chartContainer2', 'Gols', bgColor, 'rgba(0, 0, 0)');
+
+    criarGrafico(dados.passes, 'bar', 'chartContainer3', 'Passes', bgColor, 'rgba(0, 0, 0)');
+    
+    criarGrafico(dados.defesas, 'bar', 'chartContainer4', 'Defesas', bgColor, 'rgba(0, 0, 0)');
+
+    criarGrafico(dados.chutes, 'bar', 'chartContainer5', 'Chutes', bgColor,'rgba(0, 0, 0)');
+
+    criarGrafico(dados.mvp, 'pie', 'chartContainer6', 'MVP', bgColor, 'rgba(0, 0, 0)', 30, true);
+}).catch((error) => {
+    console.error("Erro ao buscar dados do Firestore:", error);
+});
+
+    </script>
+        <title>3x3 - Rocket Gráficos</title>
+    </head>
+    <body class="bodyCharts">
+        <header class="rocket-title">
+            <h1>Rocket League - Temporada 13</h1>
+            <div class="rocket-subtitle">
+                <a href="page3x3.html" class="buttons">Registrar Partidas</a>
+                <a href="partidas3x3.html" class="buttons">Partidas</a>
+            </div>
+        </header>
+        <div class="graficos block">
+            <div class="pontosJogador">
+                <h1>Pontos</h1>
+                <canvas id="chartContainer"></canvas>
+            </div>
+            <div class="golsJogador">
+                <h1>Gols</h1>
+                <canvas id="chartContainer2"></canvas>
+            </div>
+            <div class="passeJogador">
+                <h1>Passes</h1>
+                <canvas id="chartContainer3"></canvas>
+            </div>
+            <div class="defesaJogador">
+                <h1>Defesas</h1>
+                <canvas id="chartContainer4"></canvas>
+            </div>
+            <div class="chuteJogador">
+                <h1>Chutes</h1>
+                <canvas id="chartContainer5"></canvas>
+            </div>
+            <div class="mvpJogador">
+                <h1>MVP</h1>
+                <canvas id="chartContainer6"></canvas>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="page3x3.css">
+        <title>3x3 - Rocket</title>
+        <script type="module">
+            let numeroDePartidas = 0;
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+            import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+            import { submitForm } from "./formHandler.js";
+            
+
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyCR5BpDafpwNZm1L8nHlccbM6_RYwb0vtk",
+                authDomain: "rocket-1d23d.firebaseapp.com",
+                projectId: "rocket-1d23d",
+                storageBucket: "rocket-1d23d.appspot.com",
+                messagingSenderId: "382318699090",
+                appId: "1:382318699090:web:ac0961254fee3d04f1358b"
+            };
+        
+            document.addEventListener('DOMContentLoaded', function () {
+            const app = initializeApp(firebaseConfig); // Certifique-se de ter o initializeApp aqui
+            const db = getFirestore(app); // Certifique-se de ter o getFirestore aqui
+
+
+            const saveButton = document.getElementById('enviarDados');
+            saveButton.addEventListener('click', function (event) {
+                submitForm(event, db, numeroDePartidas);
+            
+            });
+        });
+
+        </script>
+    </head>
+    <body>
+        <header class="rocket-title">
+            <h1>Rocket League - Temporada 13</h1>
+            <div class="rocket-subtitle">
+                <a href="partidas3x3.html" class="buttons">Partidas</a>
+                <a href="charts3x3.html" class="buttons">Gráficos</a>
+            </div>
+        </header>
+        <form id="myForm" class="block">
+            <div class="data_partida">
+                <div>
+                    <label for="data">Data da Partida:</label>
+                    <input type="date" id="data" name="data" required><br><br>
+                </div>
+                <div>
+                    <label for="torneio">Torneio:</label>
+                    <input type="checkbox" id="torneio" name="torneio"><br><br>
+                </div>
+            </div>
+
+            <table id="tabelaDados">
+                <tr>
+                    <th class="table_cabecalho">Players</th>
+                    <th class="table_cabecalho">Pontos</th>
+                    <th class="table_cabecalho">Gols</th>
+                    <th class="table_cabecalho">Passes</th>
+                    <th class="table_cabecalho">Defesas</th>
+                    <th class="table_cabecalho">Chutes</th>
+                    <th class="table_cabecalho">MVP</th>
+                </tr>
+                <tr class="table_row_danilo">
+                    <td class="table_name_player">Danilo</td>
+                    <td>
+                        <input id="pontos_danilo"
+                            class="table_column_points_danilo" type="number"
+                            oninput="limitarCaracteres(this, 4)" required>
+                    </td>
+                    <td>
+                        <input id="gols_danilo" class="table_column_gols_danilo"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="passes_danilo"
+                            class="table_column_passes_danilo" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="defesas_danilo"
+                            class="table_column_defesas_danilo" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="chutes_danilo"
+                            class="table_column_chutes_danilo" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="mvp_danilo" class="table_column_mvp_danilo checkboxEnabled"
+                            type="checkbox">
+                    </td>
+                </tr>
+                <tr class="table_row_junin">
+                    <td class="table_name_player">Junin</td>
+                    <td>
+                        <input id="pontos_junin"
+                            class="table_column_points_junin" type="number"
+                            oninput="limitarCaracteres(this, 4)" required>
+                    </td>
+                    <td>
+                        <input id="gols_junin" class="table_column_gols_junin"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="passes_junin"
+                            class="table_column_passes_junin" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="defesas_junin"
+                            class="table_column_defesas_junin" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="chutes_junin"
+                            class="table_column_chutes_junin" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="mvp_junin" class="table_column_mvp_junin checkboxEnabled"
+                            type="checkbox">
+                    </td>
+                </tr>
+                <tr class="table_row_nilo">
+                    <td class="table_name_player">Nilo</td>
+                    <td>
+                        <input id="pontos_nilo" class="table_column_points_nilo"
+                            type="number"
+                            oninput="limitarCaracteres(this, 4)" required>
+                    </td>
+                    <td>
+                        <input id="gols_nilo" class="table_column_gols_nilo"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="passes_nilo" class="table_column_passes_nilo"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="defesas_nilo"
+                            class="table_column_defesas_nilo" type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="chutes_nilo" class="table_column_chutes_nilo"
+                            type="number"
+                            oninput="limitarCaracteres(this, 2)" required>
+                    </td>
+                    <td>
+                        <input id="mvp_nilo" class="table_column_mvp_nilo checkboxEnabled"
+                            type="checkbox">
+                    </td>
+                </tr>
+            </table>
+
+            <div class="resultado_partida">
+                <strong for="resultado">Resultado:</strong>
+                <input class="resultado_input" id="resultado_ubaki1"
+                    type="number" oninput="limitarCaracteres(this, 2)"
+                    required>
+                <strong for="x">x</strong>
+                <input class="resultado_input" id="resultado_visitante1"
+                    type="number"
+                    oninput="limitarCaracteres(this, 2)" required>
+            </div>
+
+            <div>
+                <input class="buttons" type="submit" value="Enviar"
+                    id="enviarDados">
+                <input class="buttons" type="button" value="Limpar"
+                    onclick="clearFields()">
+            </div>
+
+            <div class="voltar">
+                <a class="buttons" href="index.html">Voltar</a>
+            </div>
+        </form>
+
+
+
+        <script src="script.js"></script>
+    </body>
+</html>

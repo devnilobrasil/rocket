@@ -1,0 +1,221 @@
+@import 'partida3x3.css';
+@import 'chart3x3.css';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: 0;
+}
+
+.block{
+    max-width: 1366px;
+    margin: 0 auto;
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+:root {
+    --corTabela: rgb(251, 247, 255);
+    --corCabecalho: rgb(145, 0, 197);
+    --checkbox: #39d05c;
+}
+
+body {
+    font-family: 'Segoe UI';
+    background-color: #3b3b3b;
+    height: auto;
+    width: 100%;
+    color: white;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 8px 0;
+    color: black;
+    border: 1px solid red;
+}
+
+th,
+td {
+    border: 1px solid black;
+    text-align: center;
+    background-color: var(--corTabela);
+}
+
+td input, td span {
+    width: 100%;
+    font-weight: bolder;
+    font-family: 'Segoe UI';
+    padding: 8px;
+    text-align: center;
+    border: none;
+    background-color: var(--corTabela);
+}
+
+td {
+    width: 14.28%;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.table_cabecalho {
+    padding: 8px;
+    background-color: var(--corCabecalho);
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.buttons {
+    margin: 8px;
+    width: auto;
+    font-size: 17px;
+    background-color: var(--corTabela);
+    color: #000;
+    padding: 10px 20px;
+    border: 1px white solid;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.3);
+    /* Sombra de caixa */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.buttons:hover {
+    background-color: var(--corCabecalho);
+    color: #fff;
+    transition: background-color 0.4s;
+}
+
+.buttons:not(:hover) {
+    background-color: var(--corTabela);
+    color: #000;
+    transition: background-color 0.4s;
+
+}
+
+.data_partida {
+    margin: 8px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 12px;
+}
+
+.data_partida input {
+    border: 2px solid var(--corTabela);
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 18px;
+}
+
+.data_partida input:hover {
+    border: 2px solid;
+    border-color: var(--corCabecalho);
+    transition: border-color 0.8s;
+}
+
+.data_partida input:not(:hover) {
+    border: 2px solid;
+    border-color: var(--corTabela);
+    transition: border-color 0.4s;
+}
+
+.resultado_partida {
+    border: 1px solid var(--corTabela);
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 2px rgb(167, 167, 167);
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 24px;
+    margin: 24px 12px;
+    background-color: var(--corCabecalho);
+}
+
+.resultado_partida:hover {
+    border-color: var(--corCabecalho);
+    transition: border-color 0.8s;
+}
+
+.resultado_partida:not(:hover) {
+    border-color: var(--corTabela);
+    transition: border-color 0.4s;
+}
+
+.resultado_input {
+    text-align: center;
+    font-size: 24px;
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--corCabecalho);
+    border-radius: 8px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    margin-top: 40px;
+    height: 100%;
+}
+
+.voltar {
+    margin: 40px 0;
+}
+
+.voltar a {
+    text-decoration: none;
+}
+
+.rocket-title{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+    padding: 16px;
+    background-color: #1b1b1b;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rocket-title h1{
+    font-size: 40px;
+}
+
+.rocket-subtitle{
+    display: flex;
+    gap: 30px;
+}
+
+.checkboxEnabled {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 40px;
+    width: 100%;
+    background-color: var(--corTabela);
+    display: block;
+    margin: 0 auto;
+  }
+
+  .checkboxEnabled:checked{
+    background-color: var(--checkbox);
+  }
+
+  #myForm{
+      padding: 20px;
+  }
+  
