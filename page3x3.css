@@ -1,5 +1,5 @@
-@import 'partida3x3.css';
-@import 'chart3x3.css';
+@import './partida3x3.css';
+@import './chart3x3.css';
 
 * {
     margin: 0;
